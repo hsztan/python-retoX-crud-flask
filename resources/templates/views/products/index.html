@@ -1,0 +1,85 @@
+{% extends 'layouts/main.html' %}
+{% from 'utils/_status.html' import status_label %}
+{% from 'utils/_pagination.html' import pagination %}
+{% from 'utils/_messages.html' import flash_messages %}
+{% from 'utils/_form_fields.html' import render_field, button_field %}
+
+{% block content %}
+<section class="section">
+  {{ flash_messages(messages) }}
+  <div class="card">
+    <div class="card-header">
+      <h4 class="card-title">
+        <div class="row">
+          <div class="col-12 col-md-6 order-md-1 order-last">
+            <h3>{{ title }}</h3>
+          </div>
+          <div class="col-12 col-md-6 order-md-2 order-first">
+            {% if current_user.rol.name == "admin" %}
+            <a href="{{ url_for('products_create') }}" class="btn btn-primary">Crear</a>
+            {% endif %}
+          </div>
+        </div>
+      </h4>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-lg">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>Stock</th>
+              <th>Precio</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in data.items %}
+            <tr>
+              <td class="text-bold-500">
+                {{ loop.index + (data.page - 1) * data.per_page }}
+              </td>
+              <td class="text-bold-500">{{ product.name }}</td>
+              <td class="text-bold-500">{{ product.stock }}</td>
+              <td class="text-bold-500">{{ product.price }}</td>
+              {% if current_user.rol.name != "admin" %}
+              <td>
+                <form class="form" method="POST" action="{{ url_for('products_buy', id=product.id) }}">
+                  {{ form.csrf_token }}
+              <td class="text-bold-500">
+                {{ render_field(form.quantity,
+                class_="form-control", icon=False, placeholder='Cantidad') }}
+              </td>
+              <td>
+                {{ button_field(form.submit, class_="btn btn-primary me-1 mb-1") }}
+              </td>
+              </form>
+              </td>
+              {% endif %}
+              <td>
+                {% if current_user.rol.name == "admin" %}
+                <div class="btn-group" role="group">
+                  <a href="{{ url_for('products_update', id=product.id) }}" class="btn btn-warning">Actualizar</a>
+                  <a href="{{ url_for('products_delete', id=product.id) }}" class="btn btn-danger">Eliminar</a>
+                </div>
+                {% endif %}
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td class="text-center" colspan="4">
+                No hay elementos registrados
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if data.items %}
+      {{ pagination(data) }}
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
