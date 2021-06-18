@@ -68,7 +68,7 @@ class ProductsController:
         try:
             product = ProductsModel.query.filter_by(id=id).first()
             product_amount = form.quantity.data
-            if product_amount > 0 or product_amount > product.stock:
+            if product_amount > 0 and product_amount > product.stock:
                 sale = SalesModel(quantity=product_amount,
                                   user_id=current_user.id, product_id=product.id)
                 product.stock -= product_amount
